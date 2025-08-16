@@ -1,0 +1,61 @@
+import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
+
+const LoginPage: React.FC = () => {
+    const [email, setEmail] = useState('');
+    const [password, setPassword] = useState('');
+    const [error, setError] = useState('');
+    const { login, user, logout } = useAuth();
+    const navigate = useNavigate();
+
+    const handleSubmit = async (e: React.FormEvent) => {
+        e.preventDefault();
+        setError('');
+        try {
+            await login(email, password);
+            navigate('/');
+        } catch (err: any) {
+            setError(err.response?.data?.message || 'Login failed');
+        }
+    };
+
+    if (user) {
+        return (
+            <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100">
+                <div className="bg-white p-8 rounded shadow-md w-full max-w-md text-center">
+                    <h2 className="text-2xl font-bold mb-6">Already logged in</h2>
+                    <button onClick={logout} className="bg-red-500 text-white py-2 px-4 rounded hover:bg-red-600">Logout</button>
+                </div>
+            </div>
+        );
+    }
+
+    return (
+        <div className="flex items-center justify-center min-h-screen bg-gray-100">
+            <form onSubmit={handleSubmit} className="bg-white p-8 rounded shadow-md w-full max-w-md">
+                <h2 className="text-2xl font-bold mb-6 text-center">Login</h2>
+                {error && <div className="mb-4 text-red-500 text-center">{error}</div>}
+                <input
+                    type="email"
+                    placeholder="Email"
+                    className="w-full p-2 mb-4 border rounded"
+                    value={email}
+                    onChange={e => setEmail(e.target.value)}
+                    required
+                />
+                <input
+                    type="password"
+                    placeholder="Password"
+                    className="w-full p-2 mb-6 border rounded"
+                    value={password}
+                    onChange={e => setPassword(e.target.value)}
+                    required
+                />
+                <button type="submit" className="w-full bg-blue-500 text-white py-2 rounded hover:bg-blue-600 transition">Login</button>
+            </form>
+        </div>
+    );
+};
+
+export default LoginPage;
