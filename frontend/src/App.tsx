@@ -2,6 +2,7 @@ import { Suspense, lazy } from 'react';
 import { Route, BrowserRouter as Router, Routes } from 'react-router-dom';
 import BottomNav from './components/BottomNav';
 import DarkModeToggle from './components/DarkModeToggle';
+import Navbar from './components/Navbar';
 import PrivateRoute from './components/PrivateRoute';
 import SkipToContent from './components/SkipToContent';
 import { AuthProvider } from './context/AuthContext';
@@ -20,6 +21,7 @@ function App() {
     <AuthProvider>
       <Router>
         <SkipToContent />
+        <Navbar />
         <div className="min-h-screen bg-gray-100 dark:bg-gray-900 pb-16 sm:pb-0">
           <header className="flex justify-end p-4">
             <DarkModeToggle />
