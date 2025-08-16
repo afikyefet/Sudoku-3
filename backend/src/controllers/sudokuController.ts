@@ -1,4 +1,5 @@
 import { Request, Response } from 'express';
+import { sendCommentEmail } from '../services/notificationService';
 
 // @desc    Return current user's puzzles
 export const getUserPuzzles = async (req: Request, res: Response) => {
@@ -18,11 +19,17 @@ export const createSudoku = async (req: Request, res: Response) => {
 // @desc    Like a puzzle
 export const likeSudoku = async (req: Request, res: Response) => {
     // TODO: Implement liking a puzzle
+    // After saving like:
+    // emitLike(puzzleId, userId);
 };
 
 // @desc    Comment on a puzzle
 export const commentSudoku = async (req: Request, res: Response) => {
     // TODO: Implement commenting on a puzzle
+    // After saving comment:
+    // emitComment(puzzleId, commentObj);
+    // After comment:
+    await sendCommentEmail(puzzleOwner.email, puzzle.title, req.user.username, req.body.content);
 };
 
 // @desc    Delete a puzzle

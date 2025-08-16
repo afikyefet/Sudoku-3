@@ -1,6 +1,5 @@
 import { Router } from 'express';
 // import { getUserPuzzles, getFeed, createSudoku, likeSudoku, commentSudoku, deleteSudoku } from '../controllers/sudokuController';
-// import { protect } from '../middleware/authMiddleware';
 
 const router = Router();
 

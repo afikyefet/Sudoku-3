@@ -11,7 +11,7 @@ interface AuthContextType {
     user: User | null;
     token: string | null;
     login: (email: string, password: string) => Promise<void>;
-    register: (username: string, email: string, password: string) => Promise<void>;
+    register: (username: string, email: string, password: string, referrer?: string) => Promise<void>;
     logout: () => void;
 }
 
@@ -38,8 +38,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         setUser(res.data.user);
     };
 
-    const register = async (username: string, email: string, password: string) => {
-        const res = await axios.post('/api/auth/register', { username, email, password });
+    const register = async (username: string, email: string, password: string, referrer?: string) => {
+        const payload: any = { username, email, password };
+        if (referrer) payload.referrer = referrer;
+        const res = await axios.post('/api/auth/register', payload);
         setToken(res.data.token);
         localStorage.setItem('token', res.data.token);
         setUser(res.data.user);

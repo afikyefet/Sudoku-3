@@ -1,6 +1,8 @@
 import axios from 'axios';
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import Avatar from '../components/Avatar';
+import Skeleton from '../components/Skeleton';
 import { useAuth } from '../context/AuthContext';
 
 interface FeedPuzzle {
@@ -20,7 +22,6 @@ const FeedPage: React.FC = () => {
     const [error, setError] = useState('');
     const navigate = useNavigate();
 
-    // Fetch feed puzzles
     useEffect(() => {
         const fetchFeed = async () => {
             setLoading(true);
@@ -38,7 +39,6 @@ const FeedPage: React.FC = () => {
         fetchFeed();
     }, [token]);
 
-    // Like a puzzle
     const handleLike = async (id: string) => {
         try {
             await axios.post(`/api/sudoku/${id}/like`, {}, { headers: { Authorization: `Bearer ${token}` } });
@@ -46,7 +46,6 @@ const FeedPage: React.FC = () => {
         } catch { }
     };
 
-    // Comment on a puzzle
     const handleComment = async (id: string) => {
         const content = commentInputs[id];
         if (!content?.trim()) return;
@@ -62,29 +61,37 @@ const FeedPage: React.FC = () => {
     };
 
     return (
-        <div className="p-8 max-w-2xl mx-auto">
-            <h1 className="text-3xl font-bold mb-4">Feed</h1>
+        <div className="p-4 sm:p-8 max-w-3xl mx-auto">
+            <h1 className="text-3xl font-bold mb-4 text-gray-900 dark:text-gray-100">Feed</h1>
             {error && <div className="mb-4 text-red-500">{error}</div>}
             {loading ? (
-                <div>Loading...</div>
+                <div className="space-y-6">
+                    {[...Array(3)].map((_, i) => (
+                        <div key={i} className="bg-white dark:bg-gray-800 p-4 rounded-xl shadow flex flex-col gap-3">
+                            <div className="flex items-center gap-3">
+                                <Skeleton width="w-10" height="h-10" />
+                                <Skeleton width="w-32" />
+                            </div>
+                            <Skeleton width="w-1/2" />
+                            <Skeleton width="w-full" height="h-8" />
+                        </div>
+                    ))}
+                </div>
             ) : feed.length === 0 ? (
-                <div>No recent puzzles from followed users.</div>
+                <div className="text-gray-500 dark:text-gray-400">No recent puzzles from followed users.</div>
             ) : (
                 <ul className="space-y-6">
                     {feed.map(puzzle => (
-                        <li key={puzzle._id} className="bg-white p-4 rounded shadow">
-                            <div className="flex items-center mb-2">
-                                {/* Placeholder avatar */}
-                                <div className="w-10 h-10 rounded-full bg-blue-300 flex items-center justify-center text-white font-bold mr-3">
-                                    {puzzle.user.username[0].toUpperCase()}
-                                </div>
+                        <li key={puzzle._id} className="bg-white dark:bg-gray-800 p-4 rounded-xl shadow flex flex-col gap-2 sm:gap-4">
+                            <div className="flex items-center mb-2 gap-3">
+                                <Avatar username={puzzle.user.username} />
                                 <div>
-                                    <div className="font-semibold">{puzzle.user.username}</div>
+                                    <div className="font-semibold text-gray-900 dark:text-gray-100">{puzzle.user.username}</div>
                                     <div className="text-xs text-gray-500">{new Date(puzzle.createdAt).toLocaleString()}</div>
                                 </div>
                             </div>
                             <div
-                                className="cursor-pointer text-lg font-bold mb-2 hover:underline"
+                                className="cursor-pointer text-lg font-bold mb-2 hover:underline text-gray-800 dark:text-gray-100"
                                 onClick={() => navigate(`/puzzle/${puzzle._id}`)}
                             >
                                 {puzzle.title}
@@ -107,20 +114,20 @@ const FeedPage: React.FC = () => {
                                 <input
                                     type="text"
                                     placeholder="Add a comment..."
-                                    className="flex-1 p-2 border rounded"
+                                    className="flex-1 p-2 border rounded dark:bg-gray-700 dark:border-gray-600 dark:text-gray-100"
                                     value={commentInputs[puzzle._id] || ''}
                                     onChange={e => setCommentInputs(inputs => ({ ...inputs, [puzzle._id]: e.target.value }))}
                                 />
                                 <button type="submit" className="bg-green-500 text-white px-3 py-1 rounded hover:bg-green-600">Comment</button>
                             </form>
                             <div>
-                                <h3 className="font-semibold mb-1">Comments</h3>
+                                <h3 className="font-semibold mb-1 text-gray-900 dark:text-gray-100">Comments</h3>
                                 {puzzle.comments.length === 0 ? (
-                                    <div className="text-gray-500">No comments yet.</div>
+                                    <div className="text-gray-500 dark:text-gray-400">No comments yet.</div>
                                 ) : (
                                     <ul className="space-y-1">
                                         {puzzle.comments.slice(0, 3).map((c, i) => (
-                                            <li key={i} className="bg-gray-100 p-2 rounded">
+                                            <li key={i} className="bg-gray-100 dark:bg-gray-700 p-2 rounded">
                                                 <span className="font-bold mr-2">{c.user}</span>
                                                 <span>{c.content}</span>
                                                 <span className="text-xs text-gray-400 ml-2">{new Date(c.createdAt).toLocaleString()}</span>

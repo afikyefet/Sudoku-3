@@ -1,20 +1,31 @@
 import cors from 'cors';
 import dotenv from 'dotenv';
 import express from 'express';
+import { createServer } from 'http';
 import mongoose from 'mongoose';
+import { CORS_ORIGINS, MONGODB_URI, PORT } from './config/env';
+import { errorHandler, notFound } from './middleware/errorMiddleware';
+import { initSocket } from './realtime/socket';
+import challengeRoutes from './routes/challengeRoutes';
+import referralRoutes from './routes/referralRoutes';
 
 // Load environment variables from .env file
 dotenv.config();
 
 const app = express();
-const PORT = process.env.PORT || 5000;
+
+// CORS options for security
+const corsOptions = {
+    origin: CORS_ORIGINS,
+    credentials: true,
+};
+app.use(cors(corsOptions));
 
 // Middleware
-app.use(cors());
 app.use(express.json());
 
 // Connect to MongoDB
-mongoose.connect(process.env.MONGODB_URI as string)
+mongoose.connect(MONGODB_URI)
     .then(() => {
         console.log('Connected to MongoDB');
     })
@@ -33,13 +44,22 @@ app.use('/api/auth', authRoutes);
 app.use('/api/puzzles', puzzleRoutes);
 app.use('/api/sudoku', sudokuRoutes);
 app.use('/api/users', userRoutes);
+app.use('/api/challenge', challengeRoutes);
+app.use('/r', referralRoutes);
+
+// Centralized error handler
+app.use(notFound);
+app.use(errorHandler);
 
 // Basic route for testing
 app.get('/', (req, res) => {
     res.send('Sudoku API is running!');
 });
 
+// Create HTTP server and attach Socket.IO
+const httpServer = createServer(app);
+initSocket(httpServer);
 // Start the server
-app.listen(PORT, () => {
+httpServer.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}`);
 });

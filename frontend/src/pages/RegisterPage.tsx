@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useEffect, useState } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 
 const RegisterPage: React.FC = () => {
@@ -9,12 +9,20 @@ const RegisterPage: React.FC = () => {
     const [error, setError] = useState('');
     const { register, user, logout } = useAuth();
     const navigate = useNavigate();
+    const location = useLocation();
+    const [referrer, setReferrer] = useState<string | null>(null);
+
+    useEffect(() => {
+        const params = new URLSearchParams(location.search);
+        const ref = params.get('ref');
+        if (ref) setReferrer(ref);
+    }, [location.search]);
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setError('');
         try {
-            await register(username, email, password);
+            await register(username, email, password, referrer);
             navigate('/');
         } catch (err: any) {
             setError(err.response?.data?.message || 'Registration failed');
@@ -36,6 +44,7 @@ const RegisterPage: React.FC = () => {
         <div className="flex items-center justify-center min-h-screen bg-gray-100">
             <form onSubmit={handleSubmit} className="bg-white p-8 rounded shadow-md w-full max-w-md">
                 <h2 className="text-2xl font-bold mb-6 text-center">Register</h2>
+                {referrer && <div className="mb-2 text-blue-600 text-center">Referred by <b>{referrer}</b></div>}
                 {error && <div className="mb-4 text-red-500 text-center">{error}</div>}
                 <input
                     type="text"
